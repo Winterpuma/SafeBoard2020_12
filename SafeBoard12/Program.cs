@@ -1,48 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SafeBoard12
 {
     class Program
     {
         /// <summary>
-        /// Проверяет подходит ли массив для дальнейшей обработки
+        /// Проверяет подходит ли входная строка для дальнейшей обработки
         /// </summary>
-        /// <param name="input">Массив данных</param>
         /// <returns>true - подходит</returns>
-        private static bool IsInputOK(string[] input)
+        private static bool IsInputOK(string input)
         {
-            if (input.Length == 0) // если массив пуст
+            if (String.IsNullOrWhiteSpace(input))
                 return false;
-
-            bool values = false;
-            foreach (string s in input)
-            {
-                if (s != "") // если есть непустой элемент
-                {
-                    values = true;
-                    break;
-                }
-            }
-
-            return values;
+            
+            return true;
         }
 
         static void Main(string[] args)
         {
             // Считываем строку
-            string[] a = Console.ReadLine().Split(',');
+            string input = Console.ReadLine();
 
             // Если на вход ничего не подано
-            if (!IsInputOK(a))
+            if (!IsInputOK(input))
             {
                 Console.WriteLine("No data");
                 return;
             }
-            
+
+            string[] a = input.Split(',');
             // Создаем и заполняем словарь-счетчик с ключами enum-а
             Dictionary<string, int> counter = new Dictionary<string, int>();
             foreach (string s in Enum.GetNames(typeof(DataType)))
@@ -54,12 +41,13 @@ namespace SafeBoard12
             // Цикл анализа тектовых данных
             foreach (string word in a)
             {
-                if (Enum.IsDefined(typeof(DataType), word)) // если такое слово определено в enum 
-                    counter[word]++;
-                else
+                try
                 {
-                    try
+                    if (Enum.IsDefined(typeof(DataType), word)) // если такое слово определено в enum 
+                    counter[word]++;
+                    else
                     {
+                    
                         int enumVal = Convert.ToInt32(word);
                         if (Enum.IsDefined(typeof(DataType), enumVal)) // если такое значение определено в enum
                         {
@@ -69,10 +57,11 @@ namespace SafeBoard12
                         else
                             unknown.Add(word); // нет в enum
                     }
-                    catch
-                    {
-                        unknown.Add(word); // нет в enum
-                    }
+                    
+                }
+                catch
+                {
+                    unknown.Add(word); // нет в enum
                 }
             }
 
@@ -87,9 +76,12 @@ namespace SafeBoard12
             }
             
             // Вывод ошибок
-            Console.WriteLine("Errors:");
-            Console.WriteLine("Not valid input strings: " +
-                String.Join(",", unknown));
+            if (unknown.Count != 0)
+            {
+                Console.WriteLine("Errors:");
+                Console.WriteLine("Not valid input strings: " +
+                    String.Join(",", unknown));
+            }
         }
 
         public enum DataType
